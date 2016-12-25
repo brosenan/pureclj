@@ -1,13 +1,21 @@
-(ns pureclj.core)
+(ns pureclj.core
+  (:use [clojure.set]))
 
-(defmulti transpile class)
-(defmethod transpile Number [expr] (fn [x] expr))
-(defmethod transpile String [expr] (fn [x] expr))
-(defmethod transpile clojure.lang.Symbol [sym] (fn [map] (map sym)))
+(defmulti symbols class)
+(defmethod symbols Number [expr] #{})
+(defmethod symbols String [expr] #{})
+(defmethod symbols nil [expr] #{})
+(defmethod symbols clojure.lang.Symbol [symbol] #{symbol})
 
+(defmethod symbols clojure.lang.ISeq [seq]
+  (if (empty? seq)
+    #{}
+    (union (symbols (first seq)) (symbols (rest seq)))))
 
-(def safe-functions #{+})
-(defmethod transpile clojure.lang.ASeq [expr]
-  (if (contains? safe-functions (first expr))
-    (fn [map] (eval expr))
-    (throw (Exception. (str "Attempt to use an unsafe function " (first expr))))))
+(defmethod symbols clojure.lang.PersistentVector [vec]
+  (if (empty? vec)
+    #{}
+    (union (symbols (first vec)) (symbols (rest vec)))))
+
+(defmethod symbols clojure.lang.IPersistentMap [map]
+  (union (symbols (keys map)) (symbols (vals map))))

@@ -2,14 +2,18 @@
   (:require [speclj.core :refer :all]
             [pureclj.core :refer :all]))
 
-(describe "(transpile expr)"
-  (it "should convert a number to a function that returns that number"
-      (should= 2 ((transpile 2) {})))
-  (it "should convert a string to a function that returns that string"
-      (should= "foo" ((transpile "foo") {})))
-  (it "should convert a symbol to a function that looks up that symbol in the given map"
-      (should= 5 ((transpile 'x) {'x 5 'y 7})))
-  (it "should convert a safe function call to a function that executes the first function"
-      (should= 3 ((transpile `(~+ 1 2)) {})))
-  (it "should fail on an unsafe function"
-      (should-throw (transpile `(~swap! x inc)))))
+(describe "(symbols expr)"
+  (it "should return an empty set for a constant"
+      (should= #{} (symbols 2)))
+  (it "should return en empty set for nil"
+      (should= #{} (symbols nil)))
+  (it "should return an empty set for a string literal"
+      (should= #{} (symbols "foo")))
+  (it "should return a singleton set for a symbol"
+      (should= #{'x} (symbols 'x)))
+  (it "should reconstruct lists"
+      (should= #{'+ 'a 'b} (symbols '(+ a b))))
+  (it "should reconstruct a vector"
+      (should= #{'a 'b} (symbols '[1 a 2 b])))
+  (it "should reconstruct a map"
+      (should= #{'x 'y} (symbols {'x 'y}))))
