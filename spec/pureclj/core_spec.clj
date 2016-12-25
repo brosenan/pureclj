@@ -31,5 +31,5 @@
       (should= #{'a '+} (symbols '(fn foo [x y] (+ x y a)))))
   (it "should support multi-clause functions"
       (should= #{'a 'b '+} (symbols '(fn ([x] (+ a x))
-                                    ([x y] (+ b x y)))))))
+                                         ([x y] (+ b x y)))))))
 
