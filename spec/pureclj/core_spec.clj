@@ -16,4 +16,20 @@
   (it "should reconstruct a vector"
       (should= #{'a 'b} (symbols '[1 a 2 b])))
   (it "should reconstruct a map"
-      (should= #{'x 'y} (symbols {'x 'y}))))
+      (should= #{'x 'y} (symbols {'x 'y})))
+  (it "should reconstruct a set"
+      (should= #{'a 'b} (symbols #{'a 'b 3 4 5})))
+  (it "should remove bound variables in a let* form"
+      (should= #{'+} (symbols '(let* [x 1 y 2] (+ x y)))))
+  (it "should add symbols in bindings expressions"
+      (should= #{'a} (symbols '(let* [x a] x))))
+  (it "should apply macros"
+      (should= #{'a} (symbols '(let [x a] x))))
+  (it "should remove symbols from an unnamed fn* arg list"
+      (should= #{'a '+} (symbols '(fn [x y] (+ x y a)))))
+  (it "should remove symbols from a named fn*"
+      (should= #{'a '+} (symbols '(fn foo [x y] (+ x y a)))))
+  (it "should support multi-clause functions"
+      (should= #{'a 'b '+} (symbols '(fn ([x] (+ a x))
+                                    ([x y] (+ b x y)))))))
+
