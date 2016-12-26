@@ -38,7 +38,7 @@
                              (bindings-symbols (drop 2 bindings) syms)
                              (symbols pattern))))))
 
-(defmethod list-symbols 'let* [_ bindings expr]
+(defmethod list-symbols 'let* [_ bindings & expr]
   (bindings-symbols bindings (symbols expr)))
 
 (defn fn-bindings [bindings]
@@ -53,3 +53,30 @@
    (if (symbol? (first bindings))
      (fn-bindings (rest bindings))
      (fn-bindings bindings))))
+
+(defmethod list-symbols 'def
+  ([_ & args] (throw (Exception. "def is not allowed"))))
+
+(defmethod list-symbols 'quote
+  ([_ quoted] #{}))
+
+(defmethod list-symbols 'if
+  ([_ & args] (symbols args)))
+
+(defmethod list-symbols 'do
+  ([_ & args] (symbols args)))
+
+(defmethod list-symbols 'var
+  ([_ sym] (throw (Exception. "vars are not allowed"))))
+
+(defmethod list-symbols 'loop*
+  ([_ bindings & body] (bindings-symbols bindings (symbols body))))
+
+(defmethod list-symbols 'recur
+  ([_ & exprs] (symbols exprs)))
+
+(defmethod list-symbols 'throw
+  ([_ exception] (throw (Exception. "throw is not allowed. Use error instead"))))
+
+(defmethod list-symbols 'try
+  ([_ & body] (throw (Exception. "try/catch is not allowed"))))
