@@ -3,8 +3,12 @@
 
 (declare list-symbols)
 
-(defmulti symbols class :default :no-symbols)
-(defmethod symbols :no-symbols [expr] #{})
+(defmulti symbols class)
+(derive Number ::primitive)
+(derive String ::primitive)
+
+(defmethod symbols ::primitive [expr] #{})
+(defmethod symbols nil [expr] #{})
 
 (defmethod symbols clojure.lang.Symbol [symbol] #{symbol})
 
