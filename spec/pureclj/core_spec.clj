@@ -50,3 +50,11 @@
       (should-throw Exception "throw is not allowed. Use error instead" (symbols '(throw foo))))
   (it "should throw an exception on a try form"
       (should-throw Exception "try/catch is not allowed" (symbols '(try foo bar baz)))))
+
+(describe "(box expr env)"
+          (it "should return a constant for a constant"
+              (should= 3.14 (box 3.14 {})))
+          (it "should throw an exception if a symbol that exists in expr is not a key in env"
+              (should-throw Exception "symbols #{x} are not defined in the environment" (box 'x {})))
+          (it "should assign symbols their value in the environment"
+              (should= 6 (box '(+ x 2) {'x 3 '+ *}))))
