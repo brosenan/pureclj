@@ -29,6 +29,8 @@
       (should= #{'a '+} (symbols '(fn [x y] (+ x y a)))))
   (it "should remove symbols from a named fn*"
       (should= #{'a '+} (symbols '(fn foo [x y] (+ x y a)))))
+  (it "should remove the function name in case of a recursive call"
+      (should= #{} (symbols '(fn foo [x] (foo x)))))
   (it "should support multi-clause functions"
       (should= #{'a 'b '+} (symbols '(fn ([x] (+ a x))
                                        ([x y] (+ b x y))))))
@@ -58,3 +60,13 @@
               (should-throw Exception "symbols #{x} are not defined in the environment" (box 'x {})))
           (it "should assign symbols their value in the environment"
               (should= 6 (box '(+ x 2) {'x 3 '+ *}))))
+
+(describe "(update-env expr env)"
+          (it "should add a key to env of a def form"
+              (should= {'x 2 'y 3 'inc inc} (update-env '(def y (inc x)) {'x 2 'inc inc})))
+          (it "should apply macros"
+              (should= 2 (let [env (update-env '(defn foo [x] (inc x)) {'inc inc})
+                               f (env 'foo)]
+                           (f 1))))
+          (it "should apply all defs in a do block"
+              (should= {'x 1 'y 2} (update-env '(do (def x 1) (def y 2)) {}))))

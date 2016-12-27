@@ -55,7 +55,7 @@
 (defmethod list-symbols 'fn*
   ([_ & bindings]
    (if (symbol? (first bindings))
-     (fn-bindings (rest bindings))
+     (difference (fn-bindings (rest bindings)) #{(first bindings)})
      (fn-bindings bindings))))
 
 (defmethod list-symbols 'def
@@ -95,3 +95,18 @@
     (if (empty? missing)
       (eval `(let [~@(create-bindings syms env)] ~expr))
       (throw (Exception. (str "symbols " missing " are not defined in the environment"))))))
+
+(declare update-env)
+
+(defmulti ^:private apply-defs (fn [env form & args] form))
+(defmethod apply-defs 'def
+  ([env _ sym value] (assoc env sym (box value env))))
+(defmethod apply-defs 'do [env _ & exprs]
+  (if (empty? exprs)
+    env
+    (let [env (update-env (first exprs) env)]
+      (apply apply-defs env 'do (rest exprs)))))
+
+(defn update-env [expr env]
+  (let [expr (macroexpand expr)]
+    (apply apply-defs env expr)))
