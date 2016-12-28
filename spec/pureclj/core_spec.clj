@@ -70,3 +70,20 @@
                            (f 1))))
           (it "should apply all defs in a do block"
               (should= {'x 1 'y 2} (update-env '(do (def x 1) (def y 2)) {}))))
+
+(describe "(add-ns ns filters? env)"
+          (it "should extend env"
+              (should-contain 'x (add-ns 'clojure.core {'x 3})))
+          (it "should add all publics from ns"
+              (should-contain '+ (add-ns 'clojure.core {'x 3})))
+          (it "should apply filters if supplied"
+              (should-not-contain 'swap! (add-ns 'clojure.core [(name-filter-out #".*!")] {})))
+          (it "should apply multiple filters if supplied"
+             (should-not-contain 'println (add-ns 'clojure.core [(name-filter-out #".*!") (name-filter-out #"print.*")] {}))))
+
+(describe "(name-filter regex)"
+          (it "should return true for env entries that  match the patter"
+              (should= '(x xx) (filter (name-filter #"x+") ['x 'xx 'xy 'yy]))))
+(describe "(name-filter-out regex)"
+          (it "should return true for env entries that  match the patter"
+              (should= '(xy yy) (filter (name-filter-out #"x+") ['x 'xx 'xy 'yy]))))

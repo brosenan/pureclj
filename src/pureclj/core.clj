@@ -110,3 +110,22 @@
 (defn update-env [expr env]
   (let [expr (macroexpand expr)]
     (apply apply-defs env expr)))
+
+(defn ^:private conjunction [& funcs]
+  (fn [x]
+    (if (empty? funcs)
+      true
+      (and ((first funcs) x) ((apply conjunction (rest funcs)) x)))))
+
+(defn add-ns
+  ([ns env] (merge env (ns-publics ns)))
+  ([ns filters env]
+   (let [filters (map (fn [filt] (comp filt first)) filters)
+         filtered (filter (apply conjunction filters) (ns-publics ns))]
+     (merge env filtered))))
+
+(defn name-filter [re]
+  (comp (partial re-matches re) name))
+
+(defn name-filter-out [re]
+  (complement (name-filter re)))
