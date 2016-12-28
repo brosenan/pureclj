@@ -59,7 +59,12 @@
           (it "should throw an exception if a symbol that exists in expr is not a key in env"
               (should-throw Exception "symbols #{x} are not defined in the environment" (box 'x {})))
           (it "should assign symbols their value in the environment"
-              (should= 6 (box '(+ x 2) {'x 3 '+ *}))))
+              (should= 6 (box '(+ x 2) {'x 3 '+ *})))
+          (it "should work with functions already defined in the environment"
+              (should= 3 (let [env (update-env '(defn foo [x] (inc x)) {'inc inc})]
+                           (box '(foo 2) env))))
+          (it "should work with qualified symbols as long as they are in env"
+              (should= 3 (box '(clojure.core/inc 2) (add-ns 'clojure.core {})))))
 
 (describe "(update-env expr env)"
           (it "should add a key to env of a def form"
@@ -79,7 +84,13 @@
           (it "should apply filters if supplied"
               (should-not-contain 'swap! (add-ns 'clojure.core [(name-filter-out #".*!")] {})))
           (it "should apply multiple filters if supplied"
-             (should-not-contain 'println (add-ns 'clojure.core [(name-filter-out #".*!") (name-filter-out #"print.*")] {}))))
+              (should-not-contain 'println (add-ns 'clojure.core [(name-filter-out #".*!") (name-filter-out #"print.*")] {})))
+          (it "should return an env containing functions"
+              (should= 3 (let [env (add-ns 'clojure.core {})
+                             f (env 'inc)]
+                           (f 2))))
+          (it "should also add the fully-qualified names to env"
+              (should-contain 'clojure.core/+ (add-ns 'clojure.core {}))))
 
 (describe "(name-filter regex)"
           (it "should return true for env entries that  match the patter"

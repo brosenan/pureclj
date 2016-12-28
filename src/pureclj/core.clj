@@ -1,5 +1,6 @@
 (ns pureclj.core
-  (:use [clojure.set]))
+  (:use [clojure.set :exclude [project]]
+        [clojure.core.logic]))
 
 (declare list-symbols)
 
@@ -87,13 +88,14 @@
 
 
 (defn ^:private create-bindings [syms env]
-  (apply concat (for [sym syms] [sym (env sym)])))
+  (apply concat (for [sym syms
+                      :when (empty? (namespace sym))] [sym `(~env '~sym)])))
 
 (defn box [expr env]
   (let [syms (symbols expr)
         missing (difference syms (set (keys env)))]
     (if (empty? missing)
-      (eval `(let [~@(create-bindings syms env)] ~expr))
+      ((eval `(fn [~'$env] (let [~@(create-bindings syms '$env)] ~expr))) env)
       (throw (Exception. (str "symbols " missing " are not defined in the environment"))))))
 
 (declare update-env)
@@ -118,14 +120,28 @@
       (and ((first funcs) x) ((apply conjunction (rest funcs)) x)))))
 
 (defn add-ns
-  ([ns env] (merge env (ns-publics ns)))
+  ([ns env] (add-ns ns [] env))
   ([ns filters env]
    (let [filters (map (fn [filt] (comp filt first)) filters)
          filtered (filter (apply conjunction filters) (ns-publics ns))]
-     (merge env filtered))))
+     (-> env
+         (merge filtered)
+         (merge (apply merge (map (fn [[key val]] {(symbol (name ns) (name key)) val}) filtered)))))))
 
 (defn name-filter [re]
   (comp (partial re-matches re) name))
 
 (defn name-filter-out [re]
   (complement (name-filter re)))
+
+(def black-list [#"print.*" #".*!" #"ns-.*" #".*agent.*" #".*-ns"])
+
+(def safe-filters
+  (map (fn [re] (name-filter-out re)) black-list))
+
+(def safe-env
+  (->> {}
+       (add-ns 'clojure.core safe-filters)
+       (add-ns 'clojure.set)
+       (add-ns 'clojure.core.logic)
+       (add-ns 'clojure.core.logic.protocols)))
