@@ -6,4 +6,5 @@
   :dependencies [[org.clojure/clojure "1.8.0"] [org.clojure/core.logic "0.8.11"]]
   :profiles {:dev {:dependencies [[speclj "3.3.1"]]}}
   :plugins [[speclj "3.3.1"]]
-  :test-paths ["spec"])
+  :test-paths ["spec"]
+  :aot :all)

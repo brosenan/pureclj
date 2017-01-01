@@ -1,6 +1,5 @@
 (ns pureclj.core
-  (:use [clojure.set :exclude [project]]
-        [clojure.core.logic]))
+  (:use [clojure.set :exclude [project]]))
 
 (declare list-symbols)
 
@@ -142,6 +141,4 @@
 (def safe-env
   (->> {}
        (add-ns 'clojure.core safe-filters)
-       (add-ns 'clojure.set)
-       (add-ns 'clojure.core.logic)
-       (add-ns 'clojure.core.logic.protocols)))
+       (add-ns 'clojure.set)))
