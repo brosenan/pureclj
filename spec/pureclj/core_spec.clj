@@ -7,6 +7,8 @@
       (should= #{} (symbols 2)))
   (it "should return an empty set for a boolean"
       (should= #{} (symbols true)))
+  (it "should return an empty set for a keyword"
+      (should= #{} (symbols :foo)))
   (it "should return en empty set for nil"
       (should= #{} (symbols nil)))
   (it "should return an empty set for a string literal"
