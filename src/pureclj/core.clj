@@ -6,6 +6,7 @@
 (defmulti symbols class)
 (derive Number ::primitive)
 (derive String ::primitive)
+(derive Boolean ::primitive)
 
 (defmethod symbols ::primitive [expr] #{})
 (defmethod symbols nil [expr] #{})
