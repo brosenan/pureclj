@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="shortcut icon" href="favicon.ico">
+  <title>pureclj.core - Subsetting Clojure</title>
+  <script src="js/highlight.min.js"></script>
+  <script src="js/gumshoe.min.js"></script>
+  <script src="js/smooth-scroll.min.js"></script>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/poole.css">
+  <link rel="stylesheet" href="css/syntax.css">
+  <link rel="stylesheet" href="css/lanyon.css">
+  <link rel="stylesheet" href="css/bolton.css">
+  <link rel="stylesheet" href="css/bolton-api.css">
+  <link rel="stylesheet" href="css/bolton-highlight.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+  
+</head>
+
+  <body class="theme-base-08">
+    <span id="page-top"></span>
+
+    <!-- Target for toggling the sidebar `.sidebar-checkbox` is for regular
+     styles, `#sidebar-checkbox` for behavior. -->
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+<!-- Toggleable sidebar -->
+<div class="sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <span>&nbsp;</span>
+    <a class="sidebar-nav-item header" href="index.html"><img src="img/logo-white.png"/></a>
+    <span>&nbsp;</span>
+    <a class="sidebar-nav-item active" href="core.html">core</a>
+    <span class="sidebar-nav-item">&nbsp;</span>
+    <span class="sidebar-nav-item">&nbsp;</span>
+  </nav>
+</div>
+
+
+    <!-- Wrap is the content to shift when toggling the sidebar. We wrap the
+         content to avoid any CSS collisions with our real content. -->
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <span>pureclj.core</span>
+            <small>Subsetting Clojure</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        <div class="page">
+          <div class="heading">
+            <div>
+              <h5>Author: Boaz Rosenan&nbsp;&nbsp;<a href="mailto:brosenan@gmail.com">(brosenan@gmail.com)</a></h5>
+              <h5>Date: 15 February 2017</h5>
+              <h5>Repository: <a href="https://github.com/brosenan/pureclj">https://github.com/brosenan/pureclj</a></h5>
+              <h5>Version: 0.1.0-SNAPSHOT</h5></div></div>
+          <hr/>
+          <div class="outline">
+            <div class="toc">
+              <nav data-gumshoe-header>
+                <ul data-gumshoe>
+                  <a data-scroll class="top" href="#page-top">TOP</a>
+                  <li><a class="chapter" data-scroll="" href="#box"><h4>1 &nbsp; box: Evaluate expressions through an environment</h4></a></li><li><a class="chapter" data-scroll="" href="#add-ns"><h4>2 &nbsp; add-ns: Import a namespace to an environment</h4></a></li><li><a class="chapter" data-scroll="" href="#name-filter"><h4>3 &nbsp; name-filter</h4></a></li><li><a class="chapter" data-scroll="" href="#name-filter-out"><h4>4 &nbsp; name-filter-out</h4></a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+
+          <div class="toc">
+              <nav>
+                <ul>
+                  <li><a class="chapter" data-scroll="" href="#box"><h4>1 &nbsp; box: Evaluate expressions through an environment</h4></a></li><li><a class="chapter" data-scroll="" href="#add-ns"><h4>2 &nbsp; add-ns: Import a namespace to an environment</h4></a></li><li><a class="chapter" data-scroll="" href="#name-filter"><h4>3 &nbsp; name-filter</h4></a></li><li><a class="chapter" data-scroll="" href="#name-filter-out"><h4>4 &nbsp; name-filter-out</h4></a></li>
+                </ul>
+              </nav>
+          </div>
+          <div class="code"><pre><code class="clojure">[[:chapter &quot;symbols: Extract symbols from expressions&quot;]]</code></pre></div><div><p>should return an empty set for a constant</p></div><div class="code"><pre><code class="clojure">(symbols 2) =&gt; #{}</code></pre></div><div><p>should return an empty set for a boolean</p></div><div class="code"><pre><code class="clojure">(symbols true) =&gt; #{}</code></pre></div><div><p>should return an empty set for a keyword</p></div><div class="code"><pre><code class="clojure">(symbols :foo) =&gt; #{}</code></pre></div><div><p>should return en empty set for nil</p></div><div class="code"><pre><code class="clojure">(symbols nil) =&gt; #{}</code></pre></div><div><p>should return an empty set for a string literal</p></div><div class="code"><pre><code class="clojure">(symbols &quot;foo&quot;) =&gt; #{}</code></pre></div><div><p>should return a singleton set for a symbol</p></div><div class="code"><pre><code class="clojure">(symbols 'x) =&gt; #{'x}</code></pre></div><div><p>should reconstruct lists</p></div><div class="code"><pre><code class="clojure">(symbols '(+ a b)) =&gt; #{'+ 'a 'b}</code></pre></div><div><p>should reconstruct a vector</p></div><div class="code"><pre><code class="clojure">(symbols '[1 a 2 b]) =&gt; #{'a 'b}</code></pre></div><div><p>should reconstruct a map</p></div><div class="code"><pre><code class="clojure">(symbols {'x 'y}) =&gt; #{'x 'y}</code></pre></div><div><p>should reconstruct a set</p></div><div class="code"><pre><code class="clojure">(symbols #{'a 'b 3 4 5}) =&gt; #{'a 'b}</code></pre></div><div><p>should remove bound variables in a let* form</p></div><div class="code"><pre><code class="clojure">(symbols '(let* [x 1 y 2] (+ x y))) =&gt; #{'+}</code></pre></div><div><p>should add symbols in bindings expressions</p></div><div class="code"><pre><code class="clojure">(symbols '(let* [x a] x)) =&gt; #{'a}</code></pre></div><div><p>should apply macros</p></div><div class="code"><pre><code class="clojure">(symbols '(let [x a] x a)) =&gt; #{'a}</code></pre></div><div><p>should remove symbols from an unnamed fn* arg list</p></div><div class="code"><pre><code class="clojure">(symbols '(fn [x y] (+ x y a))) =&gt; #{'a '+}</code></pre></div><div><p>should remove symbols from a named fn*</p></div><div class="code"><pre><code class="clojure">(symbols '(fn foo [x y] (+ x y a))) =&gt; #{'a '+}</code></pre></div><div><p>should remove the function name in case of a recursive call</p></div><div class="code"><pre><code class="clojure">(symbols '(fn foo [x] (foo x))) =&gt; #{}</code></pre></div><div><p>should support multi-clause functions</p></div><div class="code"><pre><code class="clojure">(symbols '(fn ([x] (+ a x))
+           ([x y] (+ b x y)))) =&gt; #{'a 'b '+}</code></pre></div><div><p>should throw an exception on a def form</p></div><div class="code"><pre><code class="clojure">(symbols '(def x 2)) =&gt; (throws &quot;def is not allowed&quot;)</code></pre></div><div><p>should ignore the contents of a quote</p></div><div class="code"><pre><code class="clojure">(symbols ''(a b c)) =&gt; #{}</code></pre></div><div><p>should ignore the 'if' of an if form</p></div><div class="code"><pre><code class="clojure">(symbols '(if a b c)) =&gt; #{'a 'b 'c}</code></pre></div><div><p>should ignore the 'do' of a do form</p></div><div class="code"><pre><code class="clojure">(symbols '(do a b c)) =&gt; #{'a 'b 'c}</code></pre></div><div><p>should throw an exception on a var form</p></div><div class="code"><pre><code class="clojure">(symbols '#'var) =&gt; (throws &quot;vars are not allowed&quot;)</code></pre></div><div><p>should handle the bindings of a loop</p></div><div class="code"><pre><code class="clojure">(symbols '(loop [x a y b] a x b y c)) =&gt; #{'a 'b 'c}</code></pre></div><div><p>should ignore the 'recur' in a recur form</p></div><div class="code"><pre><code class="clojure">(symbols '(recur a b)) =&gt; #{'a 'b}</code></pre></div><div><p>should throw an exception on a throw form</p></div><div class="code"><pre><code class="clojure">(symbols '(throw foo)) =&gt; (throws Exception &quot;throw is not allowed. Use error instead&quot;)</code></pre></div><div><p>should throw an exception on a try form</p></div><div class="code"><pre><code class="clojure">(symbols '(try foo bar baz)) =&gt; (throws &quot;try/catch is not allowed&quot;)</code></pre></div><div><span id="box"></span><h2><b>1 &nbsp;&nbsp; box: Evaluate expressions through an environment</b></h2></div><div><p>should return a constant for a constant</p></div><div class="code"><pre><code class="clojure">(box 3.14 {}) =&gt; 3.14</code></pre></div><div><p>should throw an exception if a symbol that exists in expr is not a key in env</p></div><div class="code"><pre><code class="clojure">(box 'x {}) =&gt; (throws &quot;symbols #{x} are not defined in the environment&quot;)</code></pre></div><div><p>should assign symbols their value in the environment</p></div><div class="code"><pre><code class="clojure">(box '(+ x 2) {'x 3 '+ *}) =&gt; 6</code></pre></div><div><p>should work with functions already defined in the environment</p></div><div class="code"><pre><code class="clojure">(let [env (update-env '(defn foo [x] (inc x)) {'inc inc})]
+ (box '(foo 2) env)) =&gt; 3</code></pre></div><div><p>should work with qualified symbols as long as they are in env</p></div><div class="code"><pre><code class="clojure">(box '(clojure.core/inc 2) (add-ns 'clojure.core {})) =&gt; 3</code></pre></div><div class="code"><pre><code class="clojure">[[:chapter &quot;update-env: Update an environment based on defs&quot; :tag &quot;update-env&quot;]]</code></pre></div><div><p>should add a key to env of a def form</p></div><div class="code"><pre><code class="clojure">(update-env '(def y (inc x)) {'x 2 'inc inc}) =&gt; {'x 2 'y 3 'inc inc}</code></pre></div><div><p>should apply macros</p></div><div class="code"><pre><code class="clojure">(let [env (update-env '(defn foo [x] (inc x)) {'inc inc})
+          f (env 'foo)]
+      (f 1)) =&gt; 2</code></pre></div><div><p>should apply all defs in a do block</p></div><div class="code"><pre><code class="clojure">(update-env '(do (def x 1) (def y 2)) {}) =&gt; {'x 1 'y 2}</code></pre></div><div><span id="add-ns"></span><h2><b>2 &nbsp;&nbsp; add-ns: Import a namespace to an environment</b></h2></div><div><p>should extend env</p></div><div class="code"><pre><code class="clojure">(add-ns 'clojure.core {'x 3}) =&gt; #(contains? % 'x)</code></pre></div><div><p>should add all publics from ns</p></div><div class="code"><pre><code class="clojure">(add-ns 'clojure.core {'x 3}) =&gt; #(contains? % '+)</code></pre></div><div><p>should apply filters if supplied</p></div><div class="code"><pre><code class="clojure">(add-ns 'clojure.core [(name-filter-out #&quot;.*!&quot;)] {}) =&gt; #(not (contains? % 'swap!))</code></pre></div><div><p>should apply multiple filters if supplied</p></div><div class="code"><pre><code class="clojure">(add-ns 'clojure.core [(name-filter-out #&quot;.*!&quot;) (name-filter-out #&quot;print.*&quot;)] {}) =&gt; #(not (contains? % 'println))</code></pre></div><div><p>should return an env containing functions</p></div><div class="code"><pre><code class="clojure">(let [env (add-ns 'clojure.core {})
+     f (env 'inc)]
+ (f 2)) =&gt; 3</code></pre></div><div><p>should also add the fully-qualified names to env</p></div><div class="code"><pre><code class="clojure">(add-ns 'clojure.core {}) =&gt; #(contains? % 'clojure.core/+)</code></pre></div><div><span id="name-filter"></span><h2><b>3 &nbsp;&nbsp; name-filter</b></h2></div><div><p>should return true for env entries that  match the patter</p></div><div class="code"><pre><code class="clojure">(filter (name-filter #&quot;x+&quot;) ['x 'xx 'xy 'yy]) =&gt; '(x xx)</code></pre></div><div><span id="name-filter-out"></span><h2><b>4 &nbsp;&nbsp; name-filter-out</b></h2></div><div><p>should return true for env entries that  match the patter</p></div><div class="code"><pre><code class="clojure">(filter (name-filter-out #&quot;x+&quot;) ['x 'xx 'xy 'yy]) =&gt; '(xy yy)</code></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+  </body>
+
+  <script>
+  if (false) {
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', '<@=tracking>', 'caudate.me');
+    ga('send', 'pageview');
+  }
+  </script>
+  
+  <script type="text/javascript">
+    smoothScroll.init();
+    gumshoe.init({});
+  
+    hljs.registerLanguage("clojure",function(e){var t={"builtin-name":"def defonce cond apply if-not if-let if not not= = < > <= >= == + / * - rem quot neg? pos? delay? symbol? keyword? true? false? integer? empty? coll? list? set? ifn? fn? associative? sequential? sorted? counted? reversible? number? decimal? class? distinct? isa? float? rational? reduced? ratio? odd? even? char? seq? vector? string? map? nil? contains? zero? instance? not-every? not-any? libspec? -> ->> .. . inc compare do dotimes mapcat take remove take-while drop letfn drop-last take-last drop-while while intern condp case reduced cycle split-at split-with repeat replicate iterate range merge zipmap declare line-seq sort comparator sort-by dorun doall nthnext nthrest partition eval doseq await await-for let agent atom send send-off release-pending-sends add-watch mapv filterv remove-watch agent-error restart-agent set-error-handler error-handler set-error-mode! error-mode shutdown-agents quote var fn loop recur throw try monitor-enter monitor-exit defmacro defn defn- macroexpand macroexpand-1 for dosync and or when when-not when-let comp juxt partial sequence memoize constantly complement identity assert peek pop doto proxy defstruct first rest cons defprotocol cast coll deftype defrecord last butlast sigs reify second ffirst fnext nfirst nnext defmulti defmethod meta with-meta ns in-ns create-ns import refer keys select-keys vals key val rseq name namespace promise into transient persistent! conj! assoc! dissoc! pop! disj! use class type num float double short byte boolean bigint biginteger bigdec print-method print-dup throw-if printf format load compile get-in update-in pr pr-on newline flush read slurp read-line subvec with-open memfn time re-find re-groups rand-int rand mod locking assert-valid-fdecl alias resolve ref deref refset swap! reset! set-validator! compare-and-set! alter-meta! reset-meta! commute get-validator alter ref-set ref-history-count ref-min-history ref-max-history ensure sync io! new next conj set! to-array future future-call into-array aset gen-class reduce map filter find empty hash-map hash-set sorted-map sorted-map-by sorted-set sorted-set-by vec vector seq flatten reverse assoc dissoc list disj get union difference intersection extend extend-type extend-protocol int nth delay count concat chunk chunk-buffer chunk-append chunk-first chunk-rest max min dec unchecked-inc-int unchecked-inc unchecked-dec-inc unchecked-dec unchecked-negate unchecked-add-int unchecked-add unchecked-subtract-int unchecked-subtract chunk-next chunk-cons chunked-seq? prn vary-meta lazy-seq spread list* str find-keyword keyword symbol gensym force rationalize"},r="a-zA-Z_\\-!.?+*=<>&#'",n="["+r+"]["+r+"0-9/;:]*",a="[-+]?\\d+(\\.\\d+)?",o={b:n,r:0},s={cN:"number",b:a,r:0},i=e.inherit(e.QSM,{i:null}),c=e.C(";","$",{r:0}),d={cN:"literal",b:/\b(true|false|nil)\b/},l={b:"[\\[\\{]",e:"[\\]\\}]"},m={cN:"comment",b:"\\^"+n},p=e.C("\\^\\{","\\}"),u={cN:"symbol",b:"[:]{1,2}"+n},f={b:"\\(",e:"\\)"},h={eW:!0,r:0},y={k:t,l:n,cN:"name",b:n,starts:h},b=[f,i,m,p,c,u,l,s,d,o];return f.c=[e.C("comment",""),y,h],h.c=b,l.c=b,{aliases:["clj"],i:/\S/,c:[f,i,m,p,c,u,l,s,d]}});
+    hljs.initHighlightingOnLoad();
+  </script>
+</html>
